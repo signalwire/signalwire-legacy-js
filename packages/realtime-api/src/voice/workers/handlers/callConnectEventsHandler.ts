@@ -44,8 +44,22 @@ export function handleCallConnectEvents(
       set<Call>(payload.peer.call_id, peerCallInstance)
       callInstance.peer = peerCallInstance
       peerCallInstance.peer = callInstance
-      // @ts-expect-error
-      callInstance._emit('connect.connected', peerCallInstance)
+
+      // The peer's callId/nodeId come from its `calling.call.state` payload,
+      // which can arrive after this `calling.call.connect (connected)` event.
+      // Defer resolving `connect.connected` until the peer is established —
+      // otherwise callers immediately invoking methods like play()/record()
+      // on the peer hit "not established yet" (cloud-product#18806).
+      const peer = peerCallInstance
+      if (peer.callId && peer.nodeId) {
+        // @ts-expect-error
+        callInstance._emit('connect.connected', peer)
+      } else {
+        peer.once('call.state', () => {
+          // @ts-expect-error
+          callInstance._emit('connect.connected', peer)
+        })
+      }
       return false
     }
     case 'disconnected': {

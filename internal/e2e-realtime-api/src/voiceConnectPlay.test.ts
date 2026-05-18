@@ -104,9 +104,11 @@ const handler: TestHandler = ({ domainApp }) => {
               )
             }
 
-            await peer.hangup().catch(() => {})
-            await call.disconnected().catch(() => {})
-            await call.hangup().catch(() => {})
+            // Fire-and-forget hangup on the peer leg. Hanging up the peer
+            // ends the bridge, which cascades to ending party A and the
+            // outbound dial leg — the outer scope's `waitFor('ended')`
+            // then resolves and the test completes cleanly.
+            peer.hangup().catch(() => {})
           } catch (error) {
             console.error('onCallReceived error', error)
             reject(4)
