@@ -55,6 +55,7 @@ export function handleCallConnectEvents(
         // @ts-expect-error
         callInstance._emit('connect.connected', peer)
       } else {
+        // @ts-expect-error
         peer.once('call.state', () => {
           // @ts-expect-error
           callInstance._emit('connect.connected', peer)
