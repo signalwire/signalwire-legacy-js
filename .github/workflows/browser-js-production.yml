@@ -3,8 +3,8 @@ name: Browser SDK [production]
 on:
   workflow_call:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */4 * * *'
+  # schedule:
+  #   - cron: '0 */4 * * *'
 
 concurrency:
   group: ${{ github.workflow }}-e2e-js-production-${{ github.ref }}

@@ -3,8 +3,8 @@ name: RealtimeAPI SDK [staging]
 on:
   workflow_call:
   workflow_dispatch:
-  schedule:
-    - cron: '30 */2 * * *'
+  # schedule:
+  #   - cron: '30 */2 * * *'
 
 concurrency:
   group: ${{ github.workflow }}-realtime-api-staging-${{ github.ref }}
