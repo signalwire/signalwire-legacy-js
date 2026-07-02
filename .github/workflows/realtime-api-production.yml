@@ -3,8 +3,8 @@ name: RealtimeAPI SDK [production]
 on:
   workflow_call:
   workflow_dispatch:
-  schedule:
-    - cron: '20 * * * *'
+  # schedule:
+  #   - cron: '20 * * * *'
 
 concurrency:
   group: ${{ github.workflow }}-realtime-api-production-${{ github.ref }}
