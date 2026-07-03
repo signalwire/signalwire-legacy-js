@@ -95,6 +95,14 @@
         </div>
         <button id="startCall" class="btn btn-primary px-5 mt-4" onClick="makeCall()" disabled="true">Call</button>
         <button id="hangupCall" class="btn btn-danger px-5 mt-4 d-none" onClick="hangup()" disabled="true">Hang up</button>
+        <div class="form-group">
+          <button id="btnAutoGainControlOn" class="btn btn-primary px-5 mt-4 d-none" onClick="autoGainControlOn()">autoGainControl on</button>
+          <button id="btnAutoGainControlOff" class="btn btn-primary px-5 mt-4 d-none" onClick="autoGainControlOff()">autoGainControl off</button>
+          <button id="btnEchoCancellationOn" class="btn btn-primary px-5 mt-4 d-none" onClick="echoCancellationOn()">echoCancellationOn on</button>
+          <button id="btnEchoCancellationOff" class="btn btn-primary px-5 mt-4 d-none" onClick="echoCancellationOff()">echoCancellationOn off</button>
+          <button id="btnNoiseSuppressionOn" class="btn btn-primary px-5 mt-4 d-none" onClick="noiseSuppressionOn()">noiseSuppressionOn on</button>
+          <button id="btnNoiseSuppressionOff" class="btn btn-primary px-5 mt-4 d-none" onClick="noiseSuppressionOff()">noiseSuppressionOff off</button>
+        </div>
         <div class="form-group" id="dtmfKeys" hidden="false">
           <button id="dtmf_1" class="btn btn-primary px-2 mt-4" onClick="dtmf()">1</button>
           <button id="dtmf_2" class="btn btn-primary px-2 mt-4" onClick="dtmf()">2</button>
@@ -134,9 +142,10 @@
     <script type="text/javascript">
       var client;
       var currentCall = null;
+      window.__host = 'relay.swire.io'
 
-      var project = localStorage.getItem('relay.example.project') || '';
-      var token = localStorage.getItem('relay.example.token') || '';
+      var project = localStorage.getItem('relay.example.project') || '5b4b11d6-0824-4a66-b3f9-d5aabdf6ab8e';
+      var token = localStorage.getItem('relay.example.token') || 'PT5e107a634c77cf9da772bb0e75d23b41df6c6ac01611dd25';
       var number = localStorage.getItem('relay.example.number') || '';
       var numberFrom = localStorage.getItem('relay.example.numberFrom') || '';
       var audio = localStorage.getItem('relay.example.audio') || '1';
@@ -295,12 +304,21 @@
         case 'active': // Call has become active
           startCall.classList.add('d-none');
           hangupCall.classList.remove('d-none');
+          btnAutoGainControlOff.classList.remove('d-none')
+          btnEchoCancellationOff.classList.remove('d-none')
+          btnNoiseSuppressionOff.classList.remove('d-none')
           hangupCall.disabled = false;
           dtmfKeys.hidden=false;
           break;
         case 'hangup': // Call is over
           startCall.classList.remove('d-none');
           hangupCall.classList.add('d-none');
+          btnAutoGainControlOff.classList.add('d-none')
+          btnEchoCancellationOff.classList.add('d-none')
+          btnNoiseSuppressionOff.classList.add('d-none')
+          btnAutoGainControlOn.classList.add('d-none')
+          btnEchoCancellationOn.classList.add('d-none')
+          btnNoiseSuppressionOn.classList.add('d-none')
           hangupCall.disabled = true;
           dtmfKeys.hidden=true;
           break;
@@ -384,6 +402,53 @@
           console.log("unknown dtmf");
         }
       }
+    }
+
+    function setAudioConstraints(options) {
+      const {autoGainControl, echoCancellation, noiseSuppression
+      } = currentCall.options.localStream.getAudioTracks()[0].getSettings();
+      currentCall.applyMediaConstraints({mediaParams: {audio: {
+        autoGainControl,
+        echoCancellation,
+        noiseSuppression,
+        ...options
+      }}})
+    }
+
+    function autoGainControlOn() {
+      btnAutoGainControlOn.classList.add("d-none")
+      btnAutoGainControlOff.classList.remove("d-none")
+      setAudioConstraints({autoGainControl: true})
+    }
+
+    function autoGainControlOff() {
+      btnAutoGainControlOff.classList.add("d-none")
+      btnAutoGainControlOn.classList.remove("d-none")
+      setAudioConstraints({autoGainControl: false})
+    }
+
+    function echoCancellationOn() {
+      btnEchoCancellationOn.classList.add("d-none")
+      btnEchoCancellationOff.classList.remove("d-none")
+      setAudioConstraints({echoCancellation: true})
+    }
+
+    function echoCancellationOff() {
+      btnEchoCancellationOff.classList.add("d-none")
+      btnEchoCancellationOn.classList.remove("d-none")
+      setAudioConstraints({echoCancellation: false})
+    }
+
+    function noiseSuppressionOn() {
+      btnNoiseSuppressionOn.classList.add("d-none")
+      btnNoiseSuppressionOff.classList.remove("d-none")
+      setAudioConstraints({noiseSuppression: true})
+    }
+
+    function noiseSuppressionOff() {
+      btnNoiseSuppressionOff.classList.add("d-none")
+      btnNoiseSuppressionOn.classList.remove("d-none")
+      setAudioConstraints({noiseSuppression: false})
     }
 
     /**
