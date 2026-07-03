@@ -1,0 +1,47 @@
+name: v2 webrtc SDK Tests [production us region]
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  schedule:
+    - cron: '0/20 * * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-e2e-js-production-us-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-tests:
+    name: Run E2E tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        uses: ./.github/actions/install
+        with:
+          NODE_VERSION: ${{ matrix.node-version }}
+      - name: Build SDKs
+        uses: ./.github/actions/build
+        with:
+          NODE_VERSION: ${{ matrix.node-version }}
+      - name: Install Playwright
+        uses: ./.github/actions/playwright
+        with:
+          PLAYWRIGHT_VERSION: '1.35.1' # TODO: Read from deps ?
+      - name: Test
+        id: run-tests
+        run: npm run -w=@sw-internal/e2e-js dev -- v2WebrtcFromRest.spec.ts webrtcCalling.spec.ts
+        env:
+          SW_TEST_CONFIG: ${{ secrets.PRODUCTION_E2E_JS_USREGION_SW_TEST_CONFIG }}
+          LAML_CONFERENCE_REGION: ${{ vars.PRODUCTION_E2E_JS_USREGION_LAML_CONFERENCE_REGION }}
+      - name: Report Result
+        if: success() || failure()
+        uses: ./.github/actions/report-test-result
+        with:
+          result: ${{ steps.run-tests.conclusion }}
+          test-suite: v2-sdk-tests
+          environment: production-us
+          influxdb-bucket: ${{ secrets.INFLUXDB_BUCKET }}
+          influxdb-org: ${{ secrets.INFLUXDB_ORG }}
+          influxdb-token: ${{ secrets.INFLUXDB_TOKEN }}
+          influxdb-url: ${{ secrets.INFLUXDB_URL }}
