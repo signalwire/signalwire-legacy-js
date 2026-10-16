@@ -1,3 +1,11 @@
+> **⚠️ This package is superseded by [`@signalwire/sdk`](https://www.npmjs.com/package/@signalwire/sdk).**
+> `@signalwire/sdk` is the recommended SignalWire package for server-side TypeScript/Node.js:
+> AI voice agents, real-time call control (RELAY) and the REST APIs in a single install.
+>
+> `npm install @signalwire/sdk` · [Documentation](https://developer.signalwire.com/sdks/agents-sdk)
+>
+> This package receives critical fixes only.
+
 # SignalWire SDKs for JavaScript
 
 This [monorepo](https://en.wikipedia.org/wiki/Monorepo) contains different implementations of the SignalWire SDKs. These allow you to build applications that can run in a variety of JavaScript environments such as a browser, a node.js server or a smartphone.
